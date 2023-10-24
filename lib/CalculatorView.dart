@@ -1,3 +1,4 @@
+import 'package:calculator/BestButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:math_expressions/math_expressions.dart';
@@ -13,13 +14,24 @@ class _CalculatorViewState extends State<CalculatorView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //to prevent textField overflow
+      // resizeToAvoidBottomInset: false,
       backgroundColor: Colors.black54,
       appBar: makeAppBar(),
       body: makeBody(),
     );
   }
 
-  String expression = '0';
+  String historyText = 'asdasasdasasddasasdasasdasasdasasdasasdasasdasasdas';
+  String hintText = 'Enter the Total Cost: ';
+  String hintTextEnterTotalCost = 'Enter the Total Cost: ';
+  String hintTextEnterCustomTip = 'Enter Tip%: ';
+  double totalCost = 0;
+  bool isCustomTip = false;
+  Color inputOutlineColor = Colors.black;
+  Icon? suffixIcon = null; //percent
+  var input = TextEditingController();
+  var scrollController = ScrollController();
 
   void buttonPressed(String str) {
     String removeDecimalIfCan(dynamic result) {
@@ -36,55 +48,52 @@ class _CalculatorViewState extends State<CalculatorView> {
       return double.tryParse(s) != null;
     }
 
-    //EM DASH FOR MINUS SIGN, - for negative
+    setState(() {
+      if (!isNumeric(input.text) && !isCustomTip) {
+        inputOutlineColor = Colors.red;
+        return;
+      } else {
+        inputOutlineColor = Colors.black;
+      }
+
+      if (str == '12%') {
+        historyText += '\n-------------\n${input.text}';
+        historyText +=
+            '\ntip: ${(double.parse(input.text) * 0.12).toStringAsFixed(2)}';
+        input.text = '';
+      } else if (str == '15%') {
+        historyText += '\n-------------\n${input.text}';
+        historyText +=
+            '\ntip: ${(double.parse(input.text) * 0.15).toStringAsFixed(2)}';
+        input.text = '';
+      } else if (str == '18%') {
+        historyText += '\n-------------\n${input.text}';
+        historyText +=
+            '\ntip: ${(double.parse(input.text) * 0.18).toStringAsFixed(2)}';
+        input.text = '';
+      } else if (str == 'Custom') {
+        totalCost = double.parse(input.text);
+        isCustomTip = true;
+        input.text = '';
+        suffixIcon = Icon(Icons.percent_outlined);
+      } else if (isNumeric(str)) {
+        input.text += str;
+      } else if (str == '=') {
+        historyText += '\n-------------\n${totalCost.toString()}';
+        historyText +=
+            '\ntip: ${(totalCost * double.parse(input.text) / 100).toStringAsFixed(2)}';
+        input.text = '';
+        suffixIcon = null;
+        isCustomTip = false;
+      } else if (str == '⌫') {
+        if (input.text.isNotEmpty) {
+          input.text = input.text.substring(0, input.text.length - 1);
+        }
+      }
+    });
 
     setState(() {
-      if (str == 'AC') {
-        expression = '0';
-      } else if (str == '+/-' && expression[0] != '0') {
-        List<String> splitNums = expression.split(RegExp(r"[+—×÷]"));
-        if (splitNums.isNotEmpty) {
-          String newString = splitNums[splitNums.length - 1];
-          int len = newString.length;
-          newString = newString[0] == '-'
-              ? newString.substring(1, newString.length)
-              : '-$newString';
-
-          expression =
-              expression.substring(0, expression.length - len) + newString;
-        }
-      } else if (str == '⌫') {
-        if (expression.length == 1) {
-          expression = '0';
-        } else if (expression.isNotEmpty) {
-          expression = expression.substring(0, expression.length - 1);
-        }
-      } else if (str == '÷') {
-        expression += '÷';
-      } else if (str == '×') {
-        expression += '×';
-      } else if (str == '—') {
-        expression += '—';
-      } else if (str == '+') {
-        expression += '+';
-      } else if (str == '.') {
-        expression += '.';
-      } else if (isNumeric(str)) {
-        expression += str;
-      } else if (str == '=') {
-        expression = expression.replaceAll('—', '-');
-        expression = expression.replaceAll('÷', '/');
-        expression = expression.replaceAll('×', '*');
-
-        Expression exp = Parser().parse(expression);
-        double eval = exp.evaluate(EvaluationType.REAL, ContextModel());
-        expression = removeDecimalIfCan(eval.toString());
-      }
-      if (expression.length == 2 &&
-          expression[0] == '0' &&
-          expression[1] != '.') {
-        expression = expression[1];
-      }
+      scrollController.jumpTo(scrollController.position.minScrollExtent);
     });
   }
 
@@ -96,7 +105,7 @@ class _CalculatorViewState extends State<CalculatorView> {
       backgroundColor: Colors.black54,
       leading: GestureDetector(
         onTap: () => setState(() {
-          expression = 'lol does nothing.';
+          historyText = 'lol does nothing.';
         }),
         child: Container(
           margin: const EdgeInsets.all(10),
@@ -117,7 +126,7 @@ class _CalculatorViewState extends State<CalculatorView> {
           child: Padding(
             padding: EdgeInsets.all(10),
             child: Text(
-              'SimpliCalc',
+              'TactileTips',
               style: TextStyle(
                 color: Colors.white38,
                 fontSize: 40,
@@ -132,12 +141,9 @@ class _CalculatorViewState extends State<CalculatorView> {
   SafeArea makeBody() {
     return SafeArea(
       child: Container(
-        color: Colors.lightBlue,
+        color: Colors.white,
         child: Column(
           children: [
-            const SizedBox(
-              height: 100,
-            ),
             Container(
               margin: const EdgeInsets.only(
                 top: 10,
@@ -145,102 +151,105 @@ class _CalculatorViewState extends State<CalculatorView> {
                 left: 10,
                 right: 10,
               ),
-              height: 140,
+              alignment: Alignment.bottomRight,
+              height: 300,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
               ),
-              alignment: Alignment.centerLeft,
               padding: const EdgeInsets.all(5),
               child: Expanded(
                 child: SingleChildScrollView(
+                  controller: scrollController,
+                  reverse: true,
                   scrollDirection: Axis.vertical,
                   child: Text(
-                    expression,
+                    historyText,
                     style: const TextStyle(color: Colors.black, fontSize: 40),
+                    textAlign: TextAlign.right,
                   ),
                 ),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                BestButton(1, 1, 'AC', buttonPressed),
-                BestButton(1, 1, '+/-', buttonPressed),
-                BestButton(1, 1, '⌫', buttonPressed),
-                BestButton(1, 1, '÷', buttonPressed),
-              ],
+            Container(
+              margin: const EdgeInsets.only(
+                top: 10,
+                left: 20,
+                right: 20,
+              ),
+              height: 70,
+              child: TextField(
+                onChanged: (change) => buttonPressed('TEXTCHANGED'),
+                keyboardType: TextInputType.number,
+                controller: input,
+                style: const TextStyle(
+                    fontSize: 30.0, height: 1.0, color: Colors.black),
+                decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.all(15),
+                    hintText: hintText,
+                    prefixIcon: Icon(Icons.attach_money_outlined),
+                    suffixIcon: suffixIcon,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: inputOutlineColor, width: 2.0),
+                    )),
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                BestButton(1, 1, '7', buttonPressed),
-                BestButton(1, 1, '8', buttonPressed),
-                BestButton(1, 1, '9', buttonPressed),
-                BestButton(1, 1, '×', buttonPressed),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                BestButton(1, 1, '4', buttonPressed),
-                BestButton(1, 1, '5', buttonPressed),
-                BestButton(1, 1, '6', buttonPressed),
-                BestButton(1, 1, '—', buttonPressed),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                BestButton(1, 1, '1', buttonPressed),
-                BestButton(1, 1, '2', buttonPressed),
-                BestButton(1, 1, '3', buttonPressed),
-                BestButton(1, 1, '+', buttonPressed),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                BestButton(2, 1, '0', buttonPressed),
-                BestButton(1, 1, '.', buttonPressed),
-                BestButton(1, 1, '=', buttonPressed),
-              ],
-            ),
+            isCustomTip ? customTip() : tipChoices(),
           ],
         ),
       ),
     );
   }
-}
 
-class BestButton extends StatelessWidget {
-  const BestButton(this.w, this.h, this.text, this.callback, {super.key});
+  Column tipChoices() {
+    return Column(
+      children: [
+        BestButton(3, 1, '12%', buttonPressed),
+        BestButton(3, 1, '15%', buttonPressed),
+        BestButton(3, 1, '18%', buttonPressed),
+        BestButton(3, 1, 'Custom', buttonPressed),
+      ],
+    );
+  }
 
-  final double w, h;
-  final String text;
-  final Function callback;
-
-  final double margin = 10;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 70 * w + (w == 1 ? 0 : margin * w),
-      height: 70 * h,
-      margin: EdgeInsets.all(margin),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextButton(
-        onPressed: () => callback(text),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 30,
-          ),
+  Column customTip() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            BestButton(1, 1, '7', buttonPressed),
+            BestButton(1, 1, '8', buttonPressed),
+            BestButton(1, 1, '9', buttonPressed),
+          ],
         ),
-      ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            BestButton(1, 1, '4', buttonPressed),
+            BestButton(1, 1, '5', buttonPressed),
+            BestButton(1, 1, '6', buttonPressed),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            BestButton(1, 1, '1', buttonPressed),
+            BestButton(1, 1, '2', buttonPressed),
+            BestButton(1, 1, '3', buttonPressed),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            BestButton(1, 1, '⌫', buttonPressed),
+            BestButton(1, 1, '0', buttonPressed),
+            BestButton(1, 1, '=', buttonPressed),
+          ],
+        ),
+      ],
     );
   }
 }
