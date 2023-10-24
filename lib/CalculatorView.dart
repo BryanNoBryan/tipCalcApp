@@ -22,7 +22,7 @@ class _CalculatorViewState extends State<CalculatorView> {
     );
   }
 
-  String historyText = 'asdasasdasasddasasdasasdasasdasasdasasdasasdasasdas';
+  String historyText = '';
   String hintText = 'Enter the Total Cost: ';
   String hintTextEnterTotalCost = 'Enter the Total Cost: ';
   String hintTextEnterCustomTip = 'Enter Tip%: ';
@@ -56,26 +56,28 @@ class _CalculatorViewState extends State<CalculatorView> {
         inputOutlineColor = Colors.black;
       }
 
+      printPresets(double x) {
+        historyText += '\n-------------\n${input.text}';
+        historyText +=
+            '\ntip: ${(double.parse(input.text) * x).toStringAsFixed(2)}';
+        input.text = '';
+        //for some reason, the jump to maxScrollExtent doesn't work, but
+        //changing to min and changing the direction of the scroller to reverse fixed it
+        scrollController.jumpTo(scrollController.position.minScrollExtent);
+      }
+
       if (str == '12%') {
-        historyText += '\n-------------\n${input.text}';
-        historyText +=
-            '\ntip: ${(double.parse(input.text) * 0.12).toStringAsFixed(2)}';
-        input.text = '';
+        printPresets(0.12);
       } else if (str == '15%') {
-        historyText += '\n-------------\n${input.text}';
-        historyText +=
-            '\ntip: ${(double.parse(input.text) * 0.15).toStringAsFixed(2)}';
-        input.text = '';
+        printPresets(0.15);
       } else if (str == '18%') {
-        historyText += '\n-------------\n${input.text}';
-        historyText +=
-            '\ntip: ${(double.parse(input.text) * 0.18).toStringAsFixed(2)}';
-        input.text = '';
+        printPresets(0.18);
       } else if (str == 'Custom') {
         totalCost = double.parse(input.text);
         isCustomTip = true;
         input.text = '';
         suffixIcon = Icon(Icons.percent_outlined);
+        hintText = hintTextEnterCustomTip;
       } else if (isNumeric(str)) {
         input.text += str;
       } else if (str == '=') {
@@ -85,15 +87,13 @@ class _CalculatorViewState extends State<CalculatorView> {
         input.text = '';
         suffixIcon = null;
         isCustomTip = false;
+        hintText = hintTextEnterTotalCost;
+        scrollController.jumpTo(scrollController.position.minScrollExtent);
       } else if (str == '⌫') {
         if (input.text.isNotEmpty) {
           input.text = input.text.substring(0, input.text.length - 1);
         }
       }
-    });
-
-    setState(() {
-      scrollController.jumpTo(scrollController.position.minScrollExtent);
     });
   }
 
