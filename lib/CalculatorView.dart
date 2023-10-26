@@ -1,7 +1,6 @@
 import 'package:calculator/BestButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:math_expressions/math_expressions.dart';
 
 class CalculatorView extends StatefulWidget {
   const CalculatorView({Key? key}) : super(key: key);
@@ -22,6 +21,9 @@ class _CalculatorViewState extends State<CalculatorView> {
     );
   }
 
+  Color grey = Colors.white38;
+  Color black = Colors.black;
+
   String historyText = '';
   String hintText = 'Enter the Total Cost: ';
   String hintTextEnterTotalCost = 'Enter the Total Cost: ';
@@ -29,21 +31,11 @@ class _CalculatorViewState extends State<CalculatorView> {
   double totalCost = 0;
   bool isCustomTip = false;
   Color inputOutlineColor = Colors.black;
-  Icon? suffixIcon = null; //percent
+  Icon? suffixIcon; //percent
   var input = TextEditingController();
   var scrollController = ScrollController();
 
   void buttonPressed(String str) {
-    String removeDecimalIfCan(dynamic result) {
-      if (result.toString().contains('.')) {
-        List<String> splitDecimal = result.toString().split('.');
-        if (!(int.parse(splitDecimal[1]) > 0)) {
-          return result = splitDecimal[0].toString();
-        }
-      }
-      return result;
-    }
-
     bool isNumeric(String s) {
       return double.tryParse(s) != null;
     }
@@ -76,7 +68,7 @@ class _CalculatorViewState extends State<CalculatorView> {
         totalCost = double.parse(input.text);
         isCustomTip = true;
         input.text = '';
-        suffixIcon = Icon(Icons.percent_outlined);
+        suffixIcon = const Icon(Icons.percent_outlined);
         hintText = hintTextEnterCustomTip;
       } else if (isNumeric(str)) {
         input.text += str;
@@ -102,7 +94,7 @@ class _CalculatorViewState extends State<CalculatorView> {
       toolbarHeight: 100,
       leadingWidth: 80,
       elevation: 0,
-      backgroundColor: Colors.black54,
+      backgroundColor: Colors.black,
       leading: GestureDetector(
         onTap: () => setState(() {
           historyText = 'lol does nothing.';
@@ -141,8 +133,8 @@ class _CalculatorViewState extends State<CalculatorView> {
   SafeArea makeBody() {
     return SafeArea(
       child: Container(
-        color: Colors.white,
-        child: Column(
+        color: black,
+        child: ListView(
           children: [
             Container(
               margin: const EdgeInsets.only(
@@ -164,7 +156,7 @@ class _CalculatorViewState extends State<CalculatorView> {
                   scrollDirection: Axis.vertical,
                   child: Text(
                     historyText,
-                    style: const TextStyle(color: Colors.black, fontSize: 40),
+                    style: const TextStyle(color: Colors.white, fontSize: 40),
                     textAlign: TextAlign.right,
                   ),
                 ),
@@ -188,11 +180,11 @@ class _CalculatorViewState extends State<CalculatorView> {
                     fillColor: Colors.white,
                     contentPadding: const EdgeInsets.all(15),
                     hintText: hintText,
-                    prefixIcon: Icon(Icons.attach_money_outlined),
+                    prefixIcon: const Icon(Icons.attach_money_outlined),
                     suffixIcon: suffixIcon,
                     enabledBorder: OutlineInputBorder(
                       borderSide:
-                          BorderSide(color: inputOutlineColor, width: 2.0),
+                          BorderSide(color: inputOutlineColor, width: 4.0),
                     )),
               ),
             ),
