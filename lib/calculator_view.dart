@@ -1,4 +1,4 @@
-import 'package:calculator/BestButton.dart';
+import 'package:calculator/best_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -13,25 +13,21 @@ class _CalculatorViewState extends State<CalculatorView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //to prevent textField overflow
-      // resizeToAvoidBottomInset: false,
       backgroundColor: Colors.black54,
       appBar: makeAppBar(),
       body: makeBody(),
     );
   }
 
-  Color grey = Colors.white38;
-  Color black = Colors.black;
-
+  //LOGIC
   String historyText = '';
-  String hintText = 'Enter the Total Cost: ';
-  String hintTextEnterTotalCost = 'Enter the Total Cost: ';
+  String hintText = 'Total Cost: ';
+  String hintTextEnterTotalCost = 'Total Cost: ';
   String hintTextEnterCustomTip = 'Enter Tip%: ';
   double totalCost = 0;
   bool isCustomTip = false;
   Color inputOutlineColor = Colors.black;
-  Icon? suffixIcon; //percent
+  Icon? suffixIcon;
   var input = TextEditingController();
   var scrollController = ScrollController();
 
@@ -133,7 +129,7 @@ class _CalculatorViewState extends State<CalculatorView> {
   SafeArea makeBody() {
     return SafeArea(
       child: Container(
-        color: black,
+        color: Colors.black,
         child: ListView(
           children: [
             Container(
@@ -149,17 +145,23 @@ class _CalculatorViewState extends State<CalculatorView> {
                 border: Border.all(color: Colors.black),
               ),
               padding: const EdgeInsets.all(5),
-              child: Expanded(
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  reverse: true,
-                  scrollDirection: Axis.vertical,
-                  child: Text(
-                    historyText,
-                    style: const TextStyle(color: Colors.white, fontSize: 40),
-                    textAlign: TextAlign.right,
+              child: Flex(
+                direction: Axis.vertical,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      reverse: true,
+                      scrollDirection: Axis.vertical,
+                      child: Text(
+                        historyText,
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 40),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
             Container(
@@ -167,25 +169,28 @@ class _CalculatorViewState extends State<CalculatorView> {
                 top: 10,
                 left: 20,
                 right: 20,
+                bottom: 10,
               ),
-              height: 70,
+              height: 80,
               child: TextField(
                 onChanged: (change) => buttonPressed('TEXTCHANGED'),
                 keyboardType: TextInputType.number,
                 controller: input,
                 style: const TextStyle(
-                    fontSize: 30.0, height: 1.0, color: Colors.black),
+                    fontSize: 40.0, height: 1.0, color: Colors.black),
                 decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.all(15),
-                    hintText: hintText,
-                    prefixIcon: const Icon(Icons.attach_money_outlined),
-                    suffixIcon: suffixIcon,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: inputOutlineColor, width: 4.0),
-                    )),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.only(top: 25, bottom: 15),
+                  hintText: hintText,
+                  prefixIcon: const Icon(Icons.attach_money_outlined),
+                  suffixIcon: suffixIcon,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: inputOutlineColor, width: 4.0),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
               ),
             ),
             isCustomTip ? customTip() : tipChoices(),
@@ -195,13 +200,16 @@ class _CalculatorViewState extends State<CalculatorView> {
     );
   }
 
+  Color boxColor = const Color.fromARGB(255, 58, 58, 58);
+  Color textColor = Colors.white;
+
   Column tipChoices() {
     return Column(
       children: [
-        BestButton(3, 1, '12%', buttonPressed),
-        BestButton(3, 1, '15%', buttonPressed),
-        BestButton(3, 1, '18%', buttonPressed),
-        BestButton(3, 1, 'Custom', buttonPressed),
+        BestButton(3, 1, '12%', buttonPressed, boxColor, textColor),
+        BestButton(3, 1, '15%', buttonPressed, boxColor, textColor),
+        BestButton(3, 1, '18%', buttonPressed, boxColor, textColor),
+        BestButton(3, 1, 'Custom', buttonPressed, boxColor, textColor),
       ],
     );
   }
@@ -212,33 +220,35 @@ class _CalculatorViewState extends State<CalculatorView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BestButton(1, 1, '7', buttonPressed),
-            BestButton(1, 1, '8', buttonPressed),
-            BestButton(1, 1, '9', buttonPressed),
+            BestButton(1, 1, '7', buttonPressed, boxColor, textColor),
+            BestButton(1, 1, '8', buttonPressed, boxColor, textColor),
+            BestButton(1, 1, '9', buttonPressed, boxColor, textColor),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BestButton(1, 1, '4', buttonPressed),
-            BestButton(1, 1, '5', buttonPressed),
-            BestButton(1, 1, '6', buttonPressed),
+            BestButton(1, 1, '4', buttonPressed, boxColor, textColor),
+            BestButton(1, 1, '5', buttonPressed, boxColor, textColor),
+            BestButton(1, 1, '6', buttonPressed, boxColor, textColor),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BestButton(1, 1, '1', buttonPressed),
-            BestButton(1, 1, '2', buttonPressed),
-            BestButton(1, 1, '3', buttonPressed),
+            BestButton(1, 1, '1', buttonPressed, boxColor, textColor),
+            BestButton(1, 1, '2', buttonPressed, boxColor, textColor),
+            BestButton(1, 1, '3', buttonPressed, boxColor, textColor),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BestButton(1, 1, '⌫', buttonPressed),
-            BestButton(1, 1, '0', buttonPressed),
-            BestButton(1, 1, '=', buttonPressed),
+            BestButton(1, 1, '⌫', buttonPressed,
+                const Color.fromARGB(255, 36, 121, 190), textColor),
+            BestButton(1, 1, '0', buttonPressed, boxColor, textColor),
+            BestButton(1, 1, '=', buttonPressed,
+                const Color.fromARGB(255, 23, 255, 54), textColor),
           ],
         ),
       ],
