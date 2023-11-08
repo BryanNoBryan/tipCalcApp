@@ -10,13 +10,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Calculator App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return GestureDetector(
+      child: MaterialApp(
+        title: 'Calculator App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        debugShowCheckedModeBanner: false,
+        home: const CalculatorView(),
       ),
-      debugShowCheckedModeBanner: false,
-      home: const CalculatorView(),
     );
   }
 }

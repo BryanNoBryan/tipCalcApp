@@ -12,12 +12,21 @@ class CalculatorView extends StatefulWidget {
 class _CalculatorViewState extends State<CalculatorView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black54,
-      appBar: makeAppBar(),
-      body: makeBody(),
+    return GestureDetector(
+      onTap: () {
+        if (textFocus.hasFocus) {
+          textFocus.unfocus();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black54,
+        appBar: makeAppBar(),
+        body: makeBody(),
+      ),
     );
   }
+
+  FocusNode textFocus = FocusNode();
 
   //LOGIC
   String historyText = '';
@@ -173,14 +182,8 @@ class _CalculatorViewState extends State<CalculatorView> {
               ),
               height: 80,
               child: TextField(
+                focusNode: textFocus,
                 onChanged: (change) => buttonPressed('TEXTCHANGED'),
-                onTap: () {
-                  FocusScopeNode currentFocus = FocusScope.of(context);
-
-                  if (!currentFocus.hasPrimaryFocus) {
-                    currentFocus.unfocus(); 
-                  }
-                },
                 keyboardType: TextInputType.number,
                 controller: input,
                 style: const TextStyle(
