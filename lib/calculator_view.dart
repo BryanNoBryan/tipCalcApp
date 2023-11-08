@@ -174,6 +174,13 @@ class _CalculatorViewState extends State<CalculatorView> {
               height: 80,
               child: TextField(
                 onChanged: (change) => buttonPressed('TEXTCHANGED'),
+                onTap: () {
+                  FocusScopeNode currentFocus = FocusScope.of(context);
+
+                  if (!currentFocus.hasPrimaryFocus) {
+                    currentFocus.unfocus(); 
+                  }
+                },
                 keyboardType: TextInputType.number,
                 controller: input,
                 style: const TextStyle(
